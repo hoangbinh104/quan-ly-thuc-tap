@@ -1,0 +1,45 @@
+extends ../../layouts/default.pug
+
+block main
+  form(method="POST", action=record ? `${prefixAdmin}/doanh-nghiep/edit/${record.id}?_method=PATCH` : `${prefixAdmin}/doanh-nghiep/create`)
+    .card
+      .card-body
+        .row.g-3
+          .col-md-3
+            label.form-label Mã doanh nghiệp *
+            input.form-control(type="text", name="code", value=record ? record.code : "", required)
+          .col-md-9
+            label.form-label Tên doanh nghiệp *
+            input.form-control(type="text", name="name", value=record ? record.name : "", required)
+          .col-md-4
+            label.form-label Mã số thuế
+            input.form-control(type="text", name="taxCode", value=record ? record.taxCode : "")
+          .col-md-8
+            label.form-label Địa chỉ
+            input.form-control(type="text", name="address", value=record ? record.address : "")
+          .col-md-4
+            label.form-label Điện thoại
+            input.form-control(type="text", name="phone", value=record ? record.phone : "")
+          .col-md-4
+            label.form-label Email
+            input.form-control(type="email", name="email", value=record ? record.email : "")
+          .col-md-4
+            label.form-label Lĩnh vực
+            input.form-control(type="text", name="linhVuc", value=record ? record.linhVuc : "")
+          .col-md-4
+            label.form-label Người đại diện
+            input.form-control(type="text", name="nguoiDaiDien", value=record ? record.nguoiDaiDien : "")
+          .col-md-4
+            label.form-label Số lượng tiếp nhận
+            input.form-control(type="number", name="soLuongTiepNhan", min="0", value=record ? record.soLuongTiepNhan : 0)
+          .col-md-4
+            label.form-label Trạng thái
+            select.form-select(name="status")
+              option(value="active", selected=record && record.status === "active") Đang hợp tác
+              option(value="inactive", selected=record && record.status === "inactive") Ngừng hợp tác
+          .col-12
+            label.form-label Ghi chú
+            textarea.form-control(name="ghiChu", rows="3")= record ? record.ghiChu : ""
+      .card-footer.text-end
+        a.btn.btn-secondary(href=`${prefixAdmin}/doanh-nghiep`) Hủy
+        button.btn.btn-primary.ms-2(type="submit") Lưu

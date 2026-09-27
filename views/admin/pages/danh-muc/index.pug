@@ -1,0 +1,70 @@
+extends ../../layouts/default.pug
+
+//- Trang danh sach dung chung cho moi danh muc.
+//- Du lieu do vao: config (cau hinh danh muc), fields (cac cot hien thi),
+//- records (du lieu), keyword, pagination.
+
+mixin hienThi(field, item)
+  - var value = item[field.name]
+  case field.type
+    when "ref"
+      = value ? (value[field.ref.labelField] || "") : ""
+    when "multiref"
+      - var arr = value || []
+      = arr.map(function(x){ return x[field.ref.labelField]; }).join(", ")
+    when "list"
+      = (value || []).join(", ")
+    when "date"
+      = value ? moment(value).format("DD/MM/YYYY") : ""
+    when "select"
+      - var opt = (field.options || []).filter(function(o){ return o.value === value })[0]
+      if field.name === "status"
+        span.badge(class=value === "active" ? "bg-success" : "bg-secondary")= opt ? opt.label : value
+      else
+        = opt ? opt.label : value
+    when "password"
+      span.text-muted ••••••
+    default
+      = value
+
+block main
+  .d-flex.justify-content-between.align-items-center.mb-3
+    form.d-flex.gap-2(method="GET")
+      input.form-control(type="text", name="keyword", value=keyword, placeholder=`Tìm trong ${config.title.toLowerCase()}...`)
+      button.btn.btn-outline-primary(type="submit") Tìm
+    a.btn.btn-primary(href=`${config.basePath}/create`) + Thêm mới
+
+  .card
+    .table-responsive
+      table.table.table-hover.mb-0
+        thead
+          tr
+            th.text-center(style="width:50px") STT
+            each field in fields
+              th= field.label
+            th.text-end Thao tác
+        tbody
+          if records.length === 0
+            tr
+              td.text-center.text-muted(colspan=fields.length + 2) Chưa có dữ liệu.
+          each item, i in records
+            tr
+              td.text-center= pagination.skip + i + 1
+              each field in fields
+                td
+                  +hienThi(field, item)
+              td.text-end.text-nowrap
+                a.btn.btn-sm.btn-outline-primary(href=`${config.basePath}/edit/${item.id}`) Sửa
+                form.d-inline(method="POST", action=`${config.basePath}/delete/${item.id}?_method=DELETE`, onsubmit="return confirm('Xóa bản ghi này?')")
+                  button.btn.btn-sm.btn-outline-danger.ms-1(type="submit") Xóa
+
+  .d-flex.justify-content-between.align-items-center.mt-3
+    .text-muted.small Tổng số: #{pagination.totalRecords} bản ghi
+    if pagination.totalPage > 1
+      nav
+        ul.pagination.mb-0
+          - var i = 1
+          while i <= pagination.totalPage
+            li.page-item(class=pagination.currentPage === i ? "active" : "")
+              a.page-link(href=`?page=${i}${keyword ? "&keyword=" + keyword : ""}`)= i
+            - i++

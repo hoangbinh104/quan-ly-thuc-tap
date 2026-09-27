@@ -1,0 +1,53 @@
+extends ../../layouts/default.pug
+
+block main
+  .card.mb-3
+    .card-body
+      .row
+        .col-md-4
+          strong Mã đợt: 
+          = record.code
+        .col-md-4
+          strong Năm học: 
+          = record.namHoc
+        .col-md-4
+          strong Quyết định: 
+          = record.quyetDinhSo
+        .col-md-4.mt-2
+          strong Thời gian: 
+          | #{moment(record.startDate).format("DD/MM/YYYY")} - #{moment(record.endDate).format("DD/MM/YYYY")}
+        .col-md-8.mt-2
+          strong Lớp tham gia: 
+          each lop, i in record.lop_ids
+            span.badge.bg-light.text-dark.me-1= lop.code
+
+  .card
+    .card-header.d-flex.justify-content-between.align-items-center
+      span Danh sách HSSV được phân công (#{phanCongs.length})
+      span
+        a.btn.btn-sm.btn-outline-dark(href=`${prefixAdmin}/danh-gia/dot/${record.id}`) Kết quả thực tập
+        a.btn.btn-sm.btn-primary.ms-2(href=`${prefixAdmin}/phan-cong/${record.id}`) Phân công thêm
+    table.table.mb-0
+      thead
+        tr
+          th Mã HSSV
+          th Họ tên
+          th Doanh nghiệp
+          th Giáo viên hướng dẫn
+          th.text-center Trạng thái
+          th.text-end Theo dõi
+      tbody
+        if phanCongs.length === 0
+          tr
+            td.text-center.text-muted(colspan="6") Chưa phân công HSSV nào.
+        each pc in phanCongs
+          tr
+            td= pc.hocSinh_id ? pc.hocSinh_id.code : ""
+            td= pc.hocSinh_id ? pc.hocSinh_id.fullName : ""
+            td= pc.doanhNghiep_id ? pc.doanhNghiep_id.name : ""
+            td= pc.giaoVien_id ? pc.giaoVien_id.fullName : "Chưa phân công"
+            td.text-center
+              span.badge.bg-info.text-dark= pc.trangThai
+            td.text-end.text-nowrap
+              a.btn.btn-sm.btn-outline-secondary(href=`${prefixAdmin}/nhat-ky/${pc.id}`) Nhật ký
+              a.btn.btn-sm.btn-outline-primary.ms-1(href=`${prefixAdmin}/danh-gia/nhap/${pc.id}`) Đánh giá

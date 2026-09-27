@@ -1,0 +1,51 @@
+extends ../../layouts/default.pug
+
+block main
+  .d-flex.justify-content-between.align-items-center.mb-3
+    form.d-flex.gap-2(method="GET")
+      input.form-control(type="text", name="keyword", value=keyword, placeholder="Tìm theo tên, mã, lĩnh vực...")
+      button.btn.btn-outline-primary(type="submit") Tìm
+    a.btn.btn-primary(href=`${prefixAdmin}/doanh-nghiep/create`) + Thêm doanh nghiệp
+
+  .btn-group.mb-3
+    each item in filterStatus
+      a.btn.btn-sm(href=`?status=${item.value}`, class=item.class ? "btn-primary" : "btn-outline-secondary")= item.label
+
+  .card
+    table.table.table-hover.mb-0
+      thead
+        tr
+          th Mã
+          th Tên doanh nghiệp
+          th Lĩnh vực
+          th.text-center Tiếp nhận
+          th Người đại diện
+          th.text-center Trạng thái
+          th.text-end Thao tác
+      tbody
+        if records.length === 0
+          tr
+            td.text-center.text-muted(colspan="7") Chưa có dữ liệu.
+        each item in records
+          tr
+            td= item.code
+            td= item.name
+            td= item.linhVuc
+            td.text-center= item.soLuongTiepNhan
+            td= item.nguoiDaiDien
+            td.text-center
+              span.badge(class=item.status === "active" ? "bg-success" : "bg-secondary")
+                = item.status === "active" ? "Đang hợp tác" : "Ngừng hợp tác"
+            td.text-end
+              a.btn.btn-sm.btn-outline-primary(href=`${prefixAdmin}/doanh-nghiep/edit/${item.id}`) Sửa
+              form.d-inline(method="POST", action=`${prefixAdmin}/doanh-nghiep/delete/${item.id}?_method=DELETE`, onsubmit="return confirm('Xóa doanh nghiệp này?')")
+                button.btn.btn-sm.btn-outline-danger.ms-1(type="submit") Xóa
+
+  if pagination.totalPage > 1
+    nav.mt-3
+      ul.pagination
+        - var i = 1
+        while i <= pagination.totalPage
+          li.page-item(class=pagination.currentPage === i ? "active" : "")
+            a.page-link(href=`?page=${i}${keyword ? "&keyword=" + keyword : ""}`)= i
+          - i++

@@ -1,0 +1,60 @@
+extends ../../layouts/default.pug
+
+block main
+  .card.mb-3
+    .card-body.py-3.small
+      .row
+        .col-md-4
+          strong Đợt thực tập:
+          = dot.name
+        .col-md-4
+          strong Thời gian:
+          | #{moment(dot.startDate).format("DD/MM/YYYY")} - #{moment(dot.endDate).format("DD/MM/YYYY")}
+        .col-md-4
+          strong Đã có kết quả:
+          | #{daCoDiem}/#{rows.length} HSSV
+
+  .card
+    .table-responsive
+      table.table.table-hover.mb-0
+        thead
+          tr
+            th.text-center(style="width:50px") STT
+            th Mã HSSV
+            th Họ và tên
+            th Doanh nghiệp
+            th Giáo viên hướng dẫn
+            th.text-center Điểm DN
+            th.text-center Điểm GV
+            th.text-center Điểm BC
+            th.text-center Tổng kết
+            th.text-center Xếp loại
+            th.text-end Thao tác
+        tbody
+          if rows.length === 0
+            tr
+              td.text-center.text-muted(colspan="11") Đợt thực tập này chưa có HSSV được phân công.
+          each row, i in rows
+            tr
+              td.text-center= i + 1
+              td= row.phanCong.hocSinh_id ? row.phanCong.hocSinh_id.code : ""
+              td= row.phanCong.hocSinh_id ? row.phanCong.hocSinh_id.fullName : ""
+              td= row.phanCong.doanhNghiep_id ? row.phanCong.doanhNghiep_id.name : ""
+              td= row.phanCong.giaoVien_id ? row.phanCong.giaoVien_id.fullName : "Chưa phân công"
+              td.text-center= row.danhGia && row.danhGia.diemDoanhNghiep !== null ? row.danhGia.diemDoanhNghiep : "-"
+              td.text-center= row.danhGia && row.danhGia.diemGiaoVien !== null ? row.danhGia.diemGiaoVien : "-"
+              td.text-center= row.danhGia && row.danhGia.diemBaoCao !== null ? row.danhGia.diemBaoCao : "-"
+              td.text-center
+                strong= row.danhGia && row.danhGia.diemTongKet !== null ? row.danhGia.diemTongKet : "-"
+              td.text-center
+                if row.danhGia && row.danhGia.xepLoai
+                  span.badge(class=row.danhGia.xepLoai === "Khong dat" ? "bg-danger" : "bg-success")= row.danhGia.xepLoai
+                else
+                  span.text-muted Chưa đánh giá
+              td.text-end.text-nowrap
+                a.btn.btn-sm.btn-outline-secondary(href=`${prefixAdmin}/nhat-ky/${row.phanCong.id}`) Nhật ký
+                a.btn.btn-sm.btn-outline-primary.ms-1(href=`${prefixAdmin}/danh-gia/nhap/${row.phanCong.id}`)
+                  = row.danhGia ? "Sửa điểm" : "Nhập điểm"
+
+  .mt-3
+    a.btn.btn-secondary(href=`${prefixAdmin}/dot-thuc-tap/detail/${dot.id}`) ← Về chi tiết đợt thực tập

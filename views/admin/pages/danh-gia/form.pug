@@ -1,0 +1,54 @@
+extends ../../layouts/default.pug
+
+block main
+  .card.mb-3
+    .card-body.py-3.small
+      .row
+        .col-md-3
+          strong HSSV:
+          = phanCong.hocSinh_id ? (phanCong.hocSinh_id.code + " - " + phanCong.hocSinh_id.fullName) : ""
+        .col-md-3
+          strong Đợt thực tập:
+          = phanCong.dotThucTap_id ? phanCong.dotThucTap_id.name : ""
+        .col-md-3
+          strong Doanh nghiệp:
+          = phanCong.doanhNghiep_id ? phanCong.doanhNghiep_id.name : ""
+        .col-md-3
+          strong Giáo viên hướng dẫn:
+          = phanCong.giaoVien_id ? phanCong.giaoVien_id.fullName : "Chưa phân công"
+
+  if !coQuyenNhap
+    .alert.alert-warning Bạn chỉ xem được kết quả của HSSV này (không phải giáo viên phụ trách).
+
+  form(method="POST", action=`${prefixAdmin}/danh-gia/nhap/${phanCong.id}`)
+    .card
+      .card-header Nhập kết quả thực tập
+      .card-body
+        .row.g-3
+          .col-md-4
+            label.form-label Điểm do doanh nghiệp đánh giá (40%)
+            input.form-control(type="number", name="diemDoanhNghiep", min="0", max="10", step="0.1", value=danhGia && danhGia.diemDoanhNghiep !== null ? danhGia.diemDoanhNghiep : "", disabled=!coQuyenNhap)
+          .col-md-4
+            label.form-label Điểm do giáo viên hướng dẫn đánh giá (40%)
+            input.form-control(type="number", name="diemGiaoVien", min="0", max="10", step="0.1", value=danhGia && danhGia.diemGiaoVien !== null ? danhGia.diemGiaoVien : "", disabled=!coQuyenNhap)
+          .col-md-4
+            label.form-label Điểm báo cáo, nhật ký (20%)
+            input.form-control(type="number", name="diemBaoCao", min="0", max="10", step="0.1", value=danhGia && danhGia.diemBaoCao !== null ? danhGia.diemBaoCao : "", disabled=!coQuyenNhap)
+          .col-12
+            label.form-label Nhận xét của doanh nghiệp
+            textarea.form-control(name="nhanXetDoanhNghiep", rows="3", disabled=!coQuyenNhap)= danhGia ? danhGia.nhanXetDoanhNghiep : ""
+          .col-12
+            label.form-label Nhận xét của giáo viên hướng dẫn
+            textarea.form-control(name="nhanXetGiaoVien", rows="3", disabled=!coQuyenNhap)= danhGia ? danhGia.nhanXetGiaoVien : ""
+          if danhGia && danhGia.diemTongKet !== null
+            .col-12
+              .alert.alert-info.mb-0
+                | Điểm tổng kết hiện tại:
+                strong= danhGia.diemTongKet
+                |  - Xếp loại:
+                strong= danhGia.xepLoai
+                .small.text-muted Điểm tổng kết = 0,4 × điểm doanh nghiệp + 0,4 × điểm giáo viên + 0,2 × điểm báo cáo.
+      .card-footer.text-end
+        a.btn.btn-secondary(href=`${prefixAdmin}/danh-gia/dot/${phanCong.dotThucTap_id ? (phanCong.dotThucTap_id.id || phanCong.dotThucTap_id) : ""}`) Quay lại
+        if coQuyenNhap
+          button.btn.btn-primary.ms-2(type="submit") Lưu kết quả

@@ -1,0 +1,50 @@
+extends ../../layouts/default.pug
+
+//- Form them moi / chinh sua dung chung cho moi danh muc.
+//- record = null -> them moi; record co du lieu -> chinh sua.
+
+block main
+  form(method="POST", action=record ? `${config.basePath}/edit/${record.id}?_method=PATCH` : `${config.basePath}/create`)
+    .card
+      .card-header= record ? "Chỉnh sửa " + config.title.toLowerCase() : "Thêm mới " + config.title.toLowerCase()
+      .card-body
+        .row.g-3
+          each field in config.fields
+            - var value = record ? record[field.name] : ""
+            .col-md-6
+              label.form-label
+                = field.label
+                if field.required
+                  span.text-danger  *
+              case field.type
+                when "textarea"
+                  textarea.form-control(name=field.name, rows=field.rows || 3, placeholder=field.placeholder || "")= value || ""
+                when "list"
+                  textarea.form-control(name=field.name, rows=field.rows || 2, placeholder=field.placeholder || "")= (value || []).join(", ")
+                  .form-text Nhập nhiều giá trị, cách nhau bởi dấu phẩy.
+                when "select"
+                  select.form-select(name=field.name)
+                    each opt in field.options
+                      option(value=opt.value, selected=String(value) === opt.value)= opt.label
+                when "ref"
+                  select.form-select(name=field.name, required=field.required)
+                    option(value="") -- Chọn --
+                    each opt in refOptions[field.name]
+                      option(value=opt.value, selected=value && String(value) === opt.value)= opt.label
+                when "multiref"
+                  select.form-select(name=field.name, multiple, size="6")
+                    each opt in refOptions[field.name]
+                      option(value=opt.value, selected=(value || []).map(String).indexOf(opt.value) >= 0)= opt.label
+                when "date"
+                  input.form-control(type="date", name=field.name, value=value ? moment(value).format("YYYY-MM-DD") : "")
+                when "number"
+                  input.form-control(type="number", name=field.name, value=value || 0)
+                when "password"
+                  input.form-control(type="password", name=field.name, autocomplete="new-password", required=field.required && !record)
+                default
+                  input.form-control(type="text", name=field.name, value=value || "", required=field.required, placeholder=field.placeholder || "")
+              if field.hint
+                .form-text= field.hint
+      .card-footer.text-end
+        a.btn.btn-secondary(href=config.basePath) Hủy
+        button.btn.btn-primary.ms-2(type="submit") Lưu

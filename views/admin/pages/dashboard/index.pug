@@ -1,0 +1,51 @@
+extends ../../layouts/default.pug
+
+block main
+  .row.g-3
+    .col-md-3
+      .card.text-center.p-3
+        .fs-3.fw-bold= thongKe.soDot
+        .text-muted.small Đợt thực tập
+    .col-md-3
+      .card.text-center.p-3
+        .fs-3.fw-bold= thongKe.soDoanhNghiep
+        .text-muted.small Doanh nghiệp
+    .col-md-3
+      .card.text-center.p-3
+        .fs-3.fw-bold= thongKe.soHocSinh
+        .text-muted.small HSSV
+    .col-md-3
+      .card.text-center.p-3
+        .fs-3.fw-bold= thongKe.soGiaoVien
+        .text-muted.small Giáo viên
+
+  .row.g-3.mt-1
+    .col-md-4
+      .card.text-center.p-3
+        .fs-3.fw-bold= thongKe.soPhanCong
+        .text-muted.small Lượt phân công thực tập
+    .col-md-4
+      .card.text-center.p-3
+        .fs-3.fw-bold= thongKe.soNhatKy
+        .text-muted.small Tuần nhật ký đã ghi
+    .col-md-4
+      .card.text-center.p-3
+        .fs-3.fw-bold= thongKe.soDanhGia
+        .text-muted.small HSSV đã có kết quả
+
+  .card.mt-4
+    .card-header Thống kê phân công theo trạng thái
+    .card-body
+      if thongKeTrangThai.length === 0
+        p.text-muted.mb-0 Chưa có dữ liệu phân công.
+      else
+        table.table.mb-0
+          thead
+            tr
+              th Trạng thái
+              th.text-end Số lượng
+          tbody
+            each item in thongKeTrangThai
+              tr
+                td= item._id
+                td.text-end= item.total

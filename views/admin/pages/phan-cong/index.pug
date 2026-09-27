@@ -1,0 +1,67 @@
+extends ../../layouts/default.pug
+
+block main
+  .row.g-3
+    .col-lg-7
+      .card
+        .card-header Chọn HSSV chưa phân công (#{chuaPhanCong.length})
+        form(method="POST", action=`${prefixAdmin}/phan-cong/${dot.id}`)
+          .card-body
+            if chuaPhanCong.length === 0
+              p.text-muted.mb-0 Tất cả HSSV của các lớp trong đợt đã được phân công.
+            else
+              table.table.table-sm
+                thead
+                  tr
+                    th(style="width:40px")
+                    th Mã
+                    th Họ tên
+                    th Lớp
+                tbody
+                  each hs in chuaPhanCong
+                    tr
+                      td
+                        input.form-check-input(type="checkbox", name="hocSinh_ids", value=hs.id)
+                      td= hs.code
+                      td= hs.fullName
+                      td= hs.lop_id ? hs.lop_id.code : ""
+              hr
+              .row.g-3
+                .col-md-6
+                  label.form-label Doanh nghiệp tiếp nhận *
+                  select.form-select(name="doanhNghiep_id", required)
+                    option(value="") -- Chọn doanh nghiệp --
+                    each dn in doanhNghieps
+                      option(value=dn.id)= dn.name
+                .col-md-6
+                  label.form-label Giáo viên hướng dẫn
+                  select.form-select(name="giaoVien_id")
+                    option(value="") -- Chưa phân công --
+                    each gv in giaoViens
+                      option(value=gv.id)= gv.fullName
+                .col-md-4
+                  label.form-label Vị trí thực tập
+                  input.form-control(type="text", name="viTriThucTap")
+                .col-md-4
+                  label.form-label Ngày bắt đầu
+                  input.form-control(type="date", name="ngayBatDau")
+                .col-md-4
+                  label.form-label Ngày kết thúc
+                  input.form-control(type="date", name="ngayKetThuc")
+          .card-footer.text-end
+            button.btn.btn-primary(type="submit") Phân công
+
+    .col-lg-5
+      .card
+        .card-header Đã phân công (#{daPhanCong.length})
+        .list-group.list-group-flush
+          each pc in daPhanCong
+            .list-group-item
+              .fw-semibold #{pc.hocSinh_id ? pc.hocSinh_id.code : ""} - #{pc.hocSinh_id ? pc.hocSinh_id.fullName : ""}
+              .small.text-muted= pc.doanhNghiep_id ? pc.doanhNghiep_id.name : ""
+              form.d-flex.gap-2.mt-2(method="POST", action=`${prefixAdmin}/phan-cong/doi-giao-vien/${pc.id}?_method=PATCH`)
+                select.form-select.form-select-sm(name="giaoVien_id")
+                  option(value="") -- Chưa phân công --
+                  each gv in giaoViens
+                    option(value=gv.id, selected=pc.giaoVien_id && String(pc.giaoVien_id._id) === String(gv._id))= gv.fullName
+                button.btn.btn-sm.btn-outline-primary(type="submit") Lưu

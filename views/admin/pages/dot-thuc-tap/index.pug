@@ -1,0 +1,40 @@
+extends ../../layouts/default.pug
+
+block main
+  .d-flex.justify-content-between.align-items-center.mb-3
+    form.d-flex.gap-2(method="GET")
+      input.form-control(type="text", name="keyword", value=keyword, placeholder="Tìm đợt thực tập...")
+      button.btn.btn-outline-primary(type="submit") Tìm
+    a.btn.btn-primary(href=`${prefixAdmin}/dot-thuc-tap/create`) + Tạo đợt thực tập
+
+  .card
+    table.table.table-hover.mb-0
+      thead
+        tr
+          th Mã đợt
+          th Tên đợt
+          th Năm học
+          th Thời gian
+          th Quyết định
+          th.text-center Trạng thái
+          th.text-end
+      tbody
+        if records.length === 0
+          tr
+            td.text-center.text-muted(colspan="7") Chưa có đợt thực tập nào.
+        each item in records
+          tr
+            td= item.code
+            td= item.name
+            td= item.namHoc
+            td #{moment(item.startDate).format("DD/MM/YYYY")} - #{moment(item.endDate).format("DD/MM/YYYY")}
+            td= item.quyetDinhSo
+            td.text-center
+              span.badge(class=item.status === "open" ? "bg-success" : (item.status === "draft" ? "bg-warning text-dark" : "bg-secondary"))= item.status
+            td.text-end.text-nowrap
+              a.btn.btn-sm.btn-outline-primary(href=`${prefixAdmin}/dot-thuc-tap/detail/${item.id}`) Chi tiết
+              a.btn.btn-sm.btn-outline-success.ms-1(href=`${prefixAdmin}/phan-cong/${item.id}`) Phân công
+              a.btn.btn-sm.btn-outline-dark.ms-1(href=`${prefixAdmin}/danh-gia/dot/${item.id}`) Kết quả
+              a.btn.btn-sm.btn-outline-secondary.ms-1(href=`${prefixAdmin}/dot-thuc-tap/edit/${item.id}`) Sửa
+              form.d-inline(method="POST", action=`${prefixAdmin}/dot-thuc-tap/delete/${item.id}?_method=DELETE`, onsubmit="return confirm('Xóa đợt thực tập này?')")
+                button.btn.btn-sm.btn-outline-danger.ms-1(type="submit") Xóa

@@ -1,0 +1,49 @@
+extends ../../layouts/default.pug
+
+block main
+  form(method="POST", action=record ? `${prefixAdmin}/dot-thuc-tap/edit/${record.id}?_method=PATCH` : `${prefixAdmin}/dot-thuc-tap/create`)
+    .card
+      .card-body
+        .row.g-3
+          .col-md-3
+            label.form-label Mã đợt *
+            input.form-control(type="text", name="code", value=record ? record.code : "", required)
+          .col-md-9
+            label.form-label Tên đợt *
+            input.form-control(type="text", name="name", value=record ? record.name : "", required)
+          .col-md-3
+            label.form-label Năm học
+            input.form-control(type="text", name="namHoc", value=record ? record.namHoc : "", placeholder="2026-2027")
+          .col-md-3
+            label.form-label Học kỳ
+            input.form-control(type="text", name="hocKy", value=record ? record.hocKy : "")
+          .col-md-3
+            label.form-label Ngày bắt đầu *
+            input.form-control(type="date", name="startDate", value=record ? moment(record.startDate).format("YYYY-MM-DD") : "", required)
+          .col-md-3
+            label.form-label Ngày kết thúc *
+            input.form-control(type="date", name="endDate", value=record ? moment(record.endDate).format("YYYY-MM-DD") : "", required)
+          .col-md-4
+            label.form-label Số quyết định
+            input.form-control(type="text", name="quyetDinhSo", value=record ? record.quyetDinhSo : "")
+          .col-md-4
+            label.form-label Ngày quyết định
+            input.form-control(type="date", name="ngayQuyetDinh", value=record && record.ngayQuyetDinh ? moment(record.ngayQuyetDinh).format("YYYY-MM-DD") : "")
+          .col-md-4
+            label.form-label Trạng thái
+            select.form-select(name="status")
+              option(value="draft", selected=record && record.status === "draft") Đang soạn
+              option(value="open", selected=record && record.status === "open") Đang diễn ra
+              option(value="closed", selected=record && record.status === "closed") Đã kết thúc
+          .col-12
+            label.form-label Lớp tham gia
+            select.form-select(name="lop_ids", multiple, size="6")
+              each lop in lops
+                option(value=lop.id, selected=record && record.lop_ids.map(String).indexOf(String(lop.id)) >= 0)= lop.code + " - " + lop.name
+            .form-text Giữ Ctrl (hoặc Cmd) để chọn nhiều lớp.
+          .col-12
+            label.form-label Mô tả
+            textarea.form-control(name="moTa", rows="3")= record ? record.moTa : ""
+      .card-footer.text-end
+        a.btn.btn-secondary(href=`${prefixAdmin}/dot-thuc-tap`) Hủy
+        button.btn.btn-primary.ms-2(type="submit") Lưu

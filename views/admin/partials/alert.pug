@@ -1,0 +1,10 @@
+if messages && messages.success && messages.success.length
+  each msg in messages.success
+    .alert.alert-success.alert-dismissible.fade.show(role="alert")
+      = msg
+      button.btn-close(type="button", data-bs-dismiss="alert")
+if messages && messages.error && messages.error.length
+  each msg in messages.error
+    .alert.alert-danger.alert-dismissible.fade.show(role="alert")
+      = msg
+      button.btn-close(type="button", data-bs-dismiss="alert")

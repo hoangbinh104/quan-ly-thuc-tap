@@ -1,0 +1,99 @@
+extends ../../layouts/default.pug
+
+block main
+  .card.mb-3
+    .card-body.py-3
+      .row.small
+        .col-md-3
+          strong HSSV:
+          = phanCong.hocSinh_id ? (phanCong.hocSinh_id.code + " - " + phanCong.hocSinh_id.fullName) : ""
+        .col-md-3
+          strong Đợt thực tập:
+          = phanCong.dotThucTap_id ? phanCong.dotThucTap_id.name : ""
+        .col-md-3
+          strong Doanh nghiệp:
+          = phanCong.doanhNghiep_id ? phanCong.doanhNghiep_id.name : ""
+        .col-md-3
+          strong Giáo viên hướng dẫn:
+          = phanCong.giaoVien_id ? phanCong.giaoVien_id.fullName : "Chưa phân công"
+
+  .row.g-3
+    .col-lg-5
+      .card
+        .card-header Ghi nhật ký tuần
+        if !coQuyenGhi
+          .card-body
+            p.text-muted.mb-0 Bạn chỉ xem được nhật ký của HSSV này (không phải giáo viên phụ trách).
+        else
+          form(method="POST", action=`${prefixAdmin}/nhat-ky/${phanCong.id}`)
+            .card-body
+              .row.g-3
+                .col-4
+                  label.form-label Tuần *
+                  input.form-control(type="number", name="tuan", min="1", max="20", value=records.length + 1, required)
+                .col-4
+                  label.form-label Từ ngày
+                  input.form-control(type="date", name="tuNgay")
+                .col-4
+                  label.form-label Đến ngày
+                  input.form-control(type="date", name="denNgay")
+                .col-12
+                  label.form-label Nội dung công việc hướng dẫn
+                  textarea.form-control(name="noiDungCongViec", rows="3")
+                .col-12
+                  label.form-label Tình hình HSSV tại doanh nghiệp
+                  textarea.form-control(name="tinhHinhHSSV", rows="2")
+                .col-12
+                  label.form-label Vấn đề phát sinh
+                  textarea.form-control(name="vanDePhatSinh", rows="2")
+                .col-12
+                  label.form-label Đề xuất
+                  textarea.form-control(name="deXuat", rows="2")
+            .card-footer.text-end
+              button.btn.btn-primary(type="submit") Lưu nhật ký
+
+    .col-lg-7
+      .card
+        .card-header Nhật ký đã ghi (#{records.length} tuần)
+        .list-group.list-group-flush
+          if records.length === 0
+            .list-group-item.text-muted Chưa có nhật ký nào.
+          each nk in records
+            .list-group-item
+              .d-flex.justify-content-between.align-items-center.mb-2
+                strong Tuần #{nk.tuan}
+                span.text-muted.small
+                  if nk.tuNgay && nk.denNgay
+                    | #{moment(nk.tuNgay).format("DD/MM/YYYY")} - #{moment(nk.denNgay).format("DD/MM/YYYY")}
+              if coQuyenGhi
+                form(method="POST", action=`${prefixAdmin}/nhat-ky/edit/${nk.id}?_method=PATCH`)
+                  .mb-2
+                    label.form-label.small.mb-1 Nội dung công việc
+                    textarea.form-control.form-control-sm(name="noiDungCongViec", rows="2")= nk.noiDungCongViec
+                  .mb-2
+                    label.form-label.small.mb-1 Tình hình HSSV
+                    textarea.form-control.form-control-sm(name="tinhHinhHSSV", rows="2")= nk.tinhHinhHSSV
+                  .mb-2
+                    label.form-label.small.mb-1 Vấn đề phát sinh
+                    textarea.form-control.form-control-sm(name="vanDePhatSinh", rows="2")= nk.vanDePhatSinh
+                  .mb-2
+                    label.form-label.small.mb-1 Đề xuất
+                    textarea.form-control.form-control-sm(name="deXuat", rows="2")= nk.deXuat
+                  .text-end
+                    button.btn.btn-sm.btn-outline-primary(type="submit") Cập nhật
+                form.d-inline(method="POST", action=`${prefixAdmin}/nhat-ky/delete/${nk.id}?_method=DELETE`, onsubmit="return confirm('Xóa nhật ký tuần này?')")
+                  button.btn.btn-sm.btn-outline-danger(type="submit") Xóa
+              else
+                p.small.mb-1
+                  strong Nội dung:
+                  = nk.noiDungCongViec
+                p.small.mb-1
+                  strong Tình hình HSSV:
+                  = nk.tinhHinhHSSV
+                p.small.mb-0
+                  strong Vấn đề phát sinh:
+                  = nk.vanDePhatSinh
+
+  .mt-3
+    a.btn.btn-secondary(href=`${prefixAdmin}/nhiem-vu`) ← Về danh sách nhiệm vụ
+    a.btn.btn-outline-primary.ms-2(href=`${prefixAdmin}/danh-gia/nhap/${phanCong.id}`) Đánh giá kết quả HSSV này
